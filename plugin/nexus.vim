@@ -30,8 +30,8 @@ endfunction
 
 " Sequentialise(pattern, step, start)
 " pattern: Regex to search for when replacing with increments ('\d\+')
-" step: Number by which to increment each time the pattern is matched
 " start: Initial number of incrementor
+" step: Number by which to increment each time the pattern is matched
 function! Sequentialise(...)
   let inci = Series()
   let pattern = "\\d\\+"
@@ -44,6 +44,24 @@ function! Sequentialise(...)
     endif
   endif
   silent! exe "'<,'>s/" . pattern . "/\\=inci.next()/g"
+endfunction
+
+" List(start, step)
+" start: Initial number of incrementor
+" step: Number by which to increment each time the pattern is matched
+function List(...)
+  let inci = Series()
+  let cnt = 10
+  if a:0 == 0
+    " nothing
+  elseif a:0 == 1
+    exe "let inci = Series(" . (a:1 - 1) . ", 1)"
+  else
+    exe "let inci = Series(" . (a:1 - a:2) . ", " . a:2 . ")"
+  endif
+  exe "normal! " . cnt . "o\<esc>`["
+  exe ".,+" . (cnt-1) . "s/^/\\=inci.next()"
+  normal `[
 endfunction
 
 let s0 = Series(-1, 1)
