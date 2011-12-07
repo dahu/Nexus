@@ -28,3 +28,4 @@ endfunction
 
 let s0 = Series(-1, 1)
 let s1 = Series(1)
+let inc = Series(1)
