@@ -1,0 +1,4 @@
+test/*.tap
+test/*.msgout
+test/run_a_test
+test/run_all_tests

@@ -1,99 +1,145 @@
+function! s:generator_arguments(...)
+  let args = a:000
+  while (type(args) == type([])) && (len(args) > 0) && (type(args[0]) == type([]))
+    let args = args[0]
+  endwhile
+  let step = 1
+  let start = 0
+
+  let len = len(args)
+  if len == 0
+    " nothiing
+  elseif len == 1
+    let step = args[0]
+  else " len >= 2
+    let start = args[0]
+    let step = args[1]
+  endif
+  return [start, step]
+endfunction
+
+" Generator Interface
+function! Generator(...)
+  let g = {}
+
+  func g.__init(...) dict
+    let [self.start, self.step] = s:generator_arguments(a:000)
+    let self.value = self.start   " this should be overridden in self.init() if necessary
+    let self.index = -1
+    call self.init()
+    for x in range(abs(self.start))
+      call self.next()
+    endfor
+    let self.index = 0
+    return self
+  endfunc
+
+  func g.inc() dict
+    let ret = self.value
+    for x in range(abs(self.step))
+      call self.next()
+      let self.index += 1
+    endfor
+    return ret
+  endfunc
+
+  return g
+endfunction
+
+" Default generator - simple linear numeric sequence
+" Generators are expected to provide the following interface:
+" init([start=0], [step=1]) - to (re)initiialise the generator.
+" next() - to generate the next term in the sequence
+function! s:sequence(...)
+  let s = Generator(a:000)
+
+  func s.init() dict
+    let self.value = self.start
+  endfunc
+
+  func s.next() dict
+    if self.index == -1
+      let self.value = self.start
+    else
+      let self.value += (self.step > 0 ? 1 : -1)
+    endif
+  endfunc
+
+  return s
+endfunction
+
+" Sample generator - fibonacci sequence
+function! Fibonacci(...)
+  let f = Generator(a:000)
+
+  func f.init() dict
+    let self.value = 0
+    let self.b = 1
+  endfunc
+
+  func f.next() dict
+    let [self.value, self.b] = [self.b, self.value + self.b]
+  endfunc
+
+  return f
+endfunction
+
+" Series([step=1])
+" Series(start, step)
+" Series(generator, [step=1])
+" Series(generator, [start], [step=1])
+"
+" By default Series() returns a simple linear generator whose .next() method
+" will return the subsequent number in the series from the start-th term.
+" If a generator is provided, its .next() method will be used {step} times
+" each time the Series object's .next() method is called.
+"
+" Example:
+"
+" Given a Fibonacci generator:
+"   Series('Fibonacci')
+" creates a standard Fibonacci generator starting at the first term, 0,
+" stepping at each .next() method by one term along in the series.
+"
+" By default, Series uses the s:sequence() generator.
 function! Series(...)
   let incrementor = {}
-  let incrementor.initial_value = 0
-  let incrementor.step = 1
-  if a:0 == 0
-    " nothing
-  elseif a:0 == 1
-    let incrementor.step = a:1
-  else " a:0 == 2
-    let incrementor.initial_value = a:1
-    let incrementor.step = a:2
-  endif
-  let incrementor.rvalue = incrementor.initial_value
-  function incrementor.inc() dict
-    let self.rvalue += self.step
-    return self.rvalue
-  endfunction
-  function incrementor.val() dict
-    return self.rvalue
-  endfunction
-  function incrementor.value() dict
-    return self.val()
-  endfunction
-  function incrementor.next() dict
-    return self.inc()
-  endfunction
-  function incrementor.reset() dict
-    let self.rvalue = self.initial_value
-    return self.rvalue
-  endfunction
-  function incrementor.set(newval) dict
-    let self.rvalue = a:newval
-    return self.rvalue
-  endfunction
+
+  func incrementor.init(...) dict
+    let self.args = a:000
+    let self.gen_func = 's:sequence'
+    if a:0 == 3
+      let self.args = a:000[1:-1]
+      let self.gen_func = function(a:1)
+    endif
+
+    let [start, step] = s:generator_arguments(self.args)
+    let self.generator = call(self.gen_func, [start, step])
+    call self.generator.__init(self.args)
+
+    let self.values = []
+    let self.index = -1
+    call self.next()
+  endfunc
+
+  func incrementor.next() dict
+    call add(self.values, call(self.generator.inc, [], self.generator))
+    let self.index += 1
+    return self.values[self.index]
+  endfunc
+
+  func incrementor.value() dict
+    return self.values[self.index]
+  endfunc
+
+  call call(incrementor.init, a:000, incrementor)
   return incrementor
 endfunction
 
-" Sequentialise([pattern], [step], [start], [callback])
-" pattern: Regex to search for when replacing with increments (default: '\d\+')
-" start: Initial number of incrementor
-" step: Number by which to increment each time the pattern is matched
-function! Sequentialise(...) range
-  let inci = Series()
-  let callback = ''
-  let pattern = '\d\+'
-  if a:0 >= 1
-    if (a:0 == 1) && type(a:1) == type([])
-      let pattern = a:1[0]  " user-provided pattern
-      if len(a:1) == 2  " start at user-provided number, stepping by 1
-        exe "let inci = Series(" . (a:1[1] - 1) . ", 1)"
-      elseif len(a:1) >= 3  " user-provided start and step
-        exe "let inci = Series(" . (a:1[1] - a:1[2]) . ", " . a:1[2] . ")"
-        if len(a:1) == 4
-          let callback = a:1[3]
-        endif
-      endif
-    else
-      let pattern = a:1  " user-provided pattern
-      if a:0 == 2  " start at user-provided number, stepping by 1
-        exe "let inci = Series(" . (a:2 - 1) . ", 1)"
-      elseif a:0 >= 3  " user-provided start and step
-        exe "let inci = Series(" . (a:2 - a:3) . ", " . a:3 . ")"
-        if a:0 == 4
-          let callback = a:4
-        endif
-      endif
-    endif
-  endif
 
-  if callback == ''
-    silent! exe a:firstline . ',' . a:lastline . "s/" . pattern . "/\\=inci.next()/g"
-  else
-    let curline = a:firstline
-    for line in getline(a:firstline, a:lastline)
-      let result = call(callback, [line, inci.next()])
-      call setline(curline, substitute(line, pattern, result, ''))
-      let curline += 1
-    endfor
-  endif
-endfunction
+" " let s0 = Series(-1, 1)
+" " let s1 = Series(1)
+" " let inc = Series(1)     " alternate 1-based incrementor
 
-" List(count, [start], [step])
-" count:   Number of list items
-" [start]: Initial number of incrementor
-" [step]:  Number by which to increment each time the pattern is matched
-function! List(cnt, ...)
-  let arglist = copy(a:000)
-  call insert(arglist, '\d\+', 0)
-  exe "normal! " . a:cnt . "O1"
-  exe "'[,'] call Sequentialise(arglist)"
-  normal `[
-endfunction
-
-let s0 = Series(-1, 1)
-let s1 = Series(1)
-let inc = Series(1)     " alternate 1-based incrementor
-
-"nnoremap <leader>s0 :call s0.reset()<CR>
-"nnoremap <leader>s1 :call s1.reset()<CR>
+" "nnoremap <leader>s0 :call s0.init()<CR>
+" "nnoremap <leader>s1 :call s1.init()<CR>
