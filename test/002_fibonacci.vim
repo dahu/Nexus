@@ -1,6 +1,9 @@
 call vimtest#StartTap()
-call vimtap#Plan(24) " <== XXX  Keep plan number updated.  XXX
+call vimtap#Plan(12 * 7) " <== XXX  Keep plan number updated.  XXX
 
+let iv0s1 = Series('Fibonacci')               "  implicit start 0, implicit step 1
+let iv0is1 = Series('Fibonacci', 1)           "  implicit start 0, step 1
+let iv0is2 = Series('Fibonacci', 2)           "  implicit start 0, step 2
 let v0s1 = Series('Fibonacci', 0, 1)          "  start 0, step 1
 let v0s2 = Series('Fibonacci', 0, 2)          "  start 0, step 2
 let v0s3 = Series('Fibonacci', 0, 3)          "  start 0, step 3
@@ -10,6 +13,36 @@ let v1s3 = Series('Fibonacci', 1, 3)          "  start 1, step 3
 let v3s1 = Series('Fibonacci', 3, 1)          "  start 3, step 1
 let v3s2 = Series('Fibonacci', 3, 2)          "  start 3, step 2
 let v3s3 = Series('Fibonacci', 3, 3)          "  start 3, step 3
+
+" 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584
+
+call vimtap#Is(iv0s1.value(), 0, '.value() == initial_value')
+call vimtap#Is(iv0s1.next(), 1, '.next() steps correctly')
+call vimtap#Is(iv0s1.next(), 1, '.next() steps correctly')
+call vimtap#Is(iv0s1.next(), 2, '.next() steps correctly')
+call vimtap#Is(iv0s1.next(), 3, '.next() steps correctly')
+call vimtap#Is(iv0s1.next(), 5, '.next() steps correctly')
+call vimtap#Is(iv0s1.next(), 8, '.next() steps correctly')
+
+" 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584
+
+call vimtap#Is(iv0is1.value(), 0, '.value() == initial_value')
+call vimtap#Is(iv0is1.next(), 1, '.next() steps correctly')
+call vimtap#Is(iv0is1.next(), 1, '.next() steps correctly')
+call vimtap#Is(iv0is1.next(), 2, '.next() steps correctly')
+call vimtap#Is(iv0is1.next(), 3, '.next() steps correctly')
+call vimtap#Is(iv0is1.next(), 5, '.next() steps correctly')
+call vimtap#Is(iv0is1.next(), 8, '.next() steps correctly')
+
+" 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584
+
+call vimtap#Is(iv0is2.value(), 0, '.value() == initial_value')
+call vimtap#Is(iv0is2.next(), 1, '.next() steps correctly')
+call vimtap#Is(iv0is2.next(), 3, '.next() steps correctly')
+call vimtap#Is(iv0is2.next(), 8, '.next() steps correctly')
+call vimtap#Is(iv0is2.next(), 21, '.next() steps correctly')
+call vimtap#Is(iv0is2.next(), 55, '.next() steps correctly')
+call vimtap#Is(iv0is2.next(), 144, '.next() steps correctly')
 
 " 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584
 

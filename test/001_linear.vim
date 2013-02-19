@@ -1,5 +1,5 @@
 call vimtest#StartTap()
-call vimtap#Plan(24) " <== XXX  Keep plan number updated.  XXX
+call vimtap#Plan(8 * 3) " <== XXX  Keep plan number updated.  XXX
 
 let vi0si1 = Series()          "  value implicitly 0, step implicitly 1
 let vi0se1 = Series(1)         "  value implicitly 0, step explicitly 1

@@ -1,10 +1,10 @@
 function! s:generator_arguments(...)
   let args = a:000
-  while (type(args) == type([])) && (len(args) > 0) && (type(args[0]) == type([]))
+  while (type(args) == type([])) && (len(args) == 1) && (type(args[0]) == type([]))
     let args = args[0]
   endwhile
-  let step = 1
   let start = 0
+  let step = 1
 
   let len = len(args)
   if len == 0
@@ -104,17 +104,24 @@ endfunction
 " By default, Series uses the s:sequence() generator.
 function! Series(...)
   let incrementor = {}
+  let incrementor.initialised = 0
 
   func incrementor.init(...) dict
-    let self.args = a:000
-    let self.gen_func = 's:sequence'
-    if a:0 == 3
-      let self.args = a:000[1:-1]
-      let self.gen_func = function(a:1)
+    if self.initialised == 0
+      let self.initialised = 1
+      let self.args = a:000
+      let self.gen_func = 's:sequence'
+      if (a:0 == 3) || (a:0 && (type(a:1) == type('')))
+        let self.args = a:000[1:-1]
+        let self.gen_func = function(a:1)
+      endif
     endif
+    call self.reset()
+  endfunc
 
-    let [start, step] = s:generator_arguments(self.args)
-    let self.generator = call(self.gen_func, [start, step])
+  func incrementor.reset() dict
+    let [self.start, self.step] = s:generator_arguments(self.args)
+    let self.generator = call(self.gen_func, [self.start, self.step])
     call self.generator.__init(self.args)
 
     let self.values = []
@@ -137,9 +144,7 @@ function! Series(...)
 endfunction
 
 
-" " let s0 = Series(-1, 1)
-" " let s1 = Series(1)
-" " let inc = Series(1)     " alternate 1-based incrementor
-
-" "nnoremap <leader>s0 :call s0.init()<CR>
-" "nnoremap <leader>s1 :call s1.init()<CR>
+let s0 = Series(-1, 1)
+let s1 = Series()
+let inc = Series()            " alternate 1-based incrementor
+let fib = Series('Fibonacci') " Fibonacci number generator
