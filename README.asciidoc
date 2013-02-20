@@ -1,20 +1,24 @@
 Nexus
 -----
 
-_Incrementor Objects for Vim_
+_Generators for Vim_
 
-By default, Nexus comes with three global incrementor objects:
+Default Generator
+~~~~~~~~~~~~~~~~~
+
+By default, Nexus comes with a linear numeric generator and two global
+objects which use it:
 
 * +s0+
 * +s1+
-* +inc+
 
 The +s1+ object has a method called +next()+ which returns the next number in the
-series. As his name implies, the first such number is 1. There is a
+series. As the name implies, the first such number is 1. There is a
 corresponding +s0+ object whose first call to +next()+ yields, of course, the
-number 0. The gentle user is free to create their own series objects too:
+number 0. Users are free to create their own objects from the default
+numeric generator too:
 
-  :let even_seq = Series(0, 2)
+  :let even_seq = Series(2)
 
 The command:
 
@@ -33,9 +37,24 @@ Nexus's Series Objects provide the following methods:
 
 * +reset()+ to set the object back to its original values when created
 * +next()+ to increment and return the next number in the series
-* +inc()+ as an alias for next()
 * +value()+ to return the current value without incrementing internal state
-* +val()+ as an alias for value()
-* +set()+ to explicitly alter the internal value (but not increment amount)
 
 I use +s1+ a lot in my daily vimming. It could be useful to you too.
+
+Other generators
+~~~~~~~~~~~~~~~~
+
+Other generators can be written for Nexus and passed to +Series()+ as
+a string in the first argument:
+
+  :let fib = Series('Fibonacci')
+
+Will create a Series object called +fib+ that generates the Fibonacci
+sequence on each subsequent +.next()+ call. This generator and object
+exist by default in the Nexus plugin. They are not expected to be
+useful in themselves but rather serve to demonstrate how user-created
+generators can be used with Nexus. Consult the code in
++plugin/nexus.vim+ to learn how to craft your generator. If you _do_
+find a use for the Fibonacci sequence in your Vim life, I would love
+to hear about it.  :-)
+
