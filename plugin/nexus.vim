@@ -73,8 +73,8 @@ function! Fibonacci(...)
   let f = Generator(a:000)
 
   func f.init() dict
-    let self.value = 0
-    let self.b = 1
+    let self.value = 1
+    let self.b = 0
   endfunc
 
   func f.next() dict
