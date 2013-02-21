@@ -50,7 +50,7 @@ endfunction
 " Generators are expected to provide the following interface:
 " init([start=0], [step=1]) - to (re)initiialise the generator.
 " next() - to generate the next term in the sequence
-function! s:sequence(...)
+function! Sequence(...)
   let s = Generator(a:000)
 
   func s.init() dict
@@ -101,7 +101,7 @@ endfunction
 " creates a standard Fibonacci generator starting at the first term, 0,
 " stepping at each .next() method by one term along in the series.
 "
-" By default, Series uses the s:sequence() generator.
+" By default, Series uses the Sequence() generator.
 function! Series(...)
   let incrementor = {}
   let incrementor.initialised = 0
@@ -110,7 +110,7 @@ function! Series(...)
     if self.initialised == 0
       let self.initialised = 1
       let self.args = a:000
-      let self.gen_func = 's:sequence'
+      let self.gen_func = 'Sequence'
       if (a:0 == 3) || (a:0 && (type(a:1) == type('')))
         let self.args = a:000[1:-1]
         let self.gen_func = function(a:1)
