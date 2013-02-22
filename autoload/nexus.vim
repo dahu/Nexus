@@ -58,3 +58,28 @@ function! nexus#alpha(...)
 
   return a
 endfunction
+
+function! nexus#roman(...)
+  let r = Generator(a:000)
+  let r.arabic = [1000, 900, 500, 400, 100, 90, 50,  40,  10,  9,  5,   4,  1 ]
+  let r.roman  = ["M", "CM", "D","CD", "C","XC","L","XL","X","IX","V","IV","I"]
+
+  func r.init() dict
+    let self.value = 'I'
+    let self.n = 1
+  endfunc
+
+  func r.next() dict
+    let self.n += 1
+    let self.value = ''
+    let n = self.n
+    for i in range(0, 12)
+        while n >= self.arabic[i]
+            let self.value .= self.roman[i]
+            let n -= self.arabic[i]
+        endwhile
+    endfor
+  endfunc
+
+  return r
+endfunction
