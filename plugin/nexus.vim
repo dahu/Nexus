@@ -110,7 +110,7 @@ function! Series(...)
     if self.initialised == 0
       let self.initialised = 1
       let self.gen_func = function(get(filter(copy(a:000), 'v:val =~ ''^\h[a-zA-Z0-9#._]*\(()\?\)\?$'''), 0, 'Sequence'))
-      let self.args = filter(copy(a:000), 'v:val =~ ''^\d\+$''')[0:1]
+      let self.args = filter(copy(a:000), 'v:val =~ ''^[-+]\?\d\+$''')[0:1]
       let self.format = get(filter(copy(a:000), 'v:val =~ '':\|%'''), 0, 'x:nexus')
       let self.use_printf = self.format !~# 'x:nexus'
     endif
