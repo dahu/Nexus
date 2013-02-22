@@ -97,7 +97,7 @@ function! Series(...)
     let index = a:0 ? a:1 : (self.index - 1)
     let value = (index <= 0 ? self.values[0] : self.values[index])
     return self.use_printf
-          \ ? printf(self.format, value)
+          \ ? eval(printf(self.format, value))
           \ : eval(substitute(self.format, '\C\<x:nexus\>', 'value', 'g'))
   endfunc
 
