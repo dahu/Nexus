@@ -116,8 +116,8 @@ call vimtap#Is(v1s3.next(), 4181, '.next() steps correctly')
 
 " " 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584
 
-call vimtap#Is(v3s1.value(), 3, '.value() == initial_value')
-call vimtap#Is(v3s1.next(), 3, '.next() steps correctly')
+call vimtap#Is(v3s1.value(), 2, '.value() == initial_value')
+call vimtap#Is(v3s1.next(), 2, '.next() steps correctly')
 call vimtap#Is(v3s1.next(), 3, '.next() steps correctly')
 call vimtap#Is(v3s1.next(), 5, '.next() steps correctly')
 call vimtap#Is(v3s1.next(), 8, '.next() steps correctly')
@@ -127,8 +127,8 @@ call vimtap#Is(v3s1.next(), 34, '.next() steps correctly')
 
 " " 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584
 
-call vimtap#Is(v3s2.value(), 3, '.value() == initial_value')
-call vimtap#Is(v3s2.next(), 3, '.next() steps correctly')
+call vimtap#Is(v3s2.value(), 2, '.value() == initial_value')
+call vimtap#Is(v3s2.next(), 2, '.next() steps correctly')
 call vimtap#Is(v3s2.next(), 5, '.next() steps correctly')
 call vimtap#Is(v3s2.next(), 13, '.next() steps correctly')
 call vimtap#Is(v3s2.next(), 34, '.next() steps correctly')
@@ -138,8 +138,8 @@ call vimtap#Is(v3s2.next(), 610, '.next() steps correctly')
 
 " " 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584
 
-call vimtap#Is(v3s3.value(), 3, '.value() == initial_value')
-call vimtap#Is(v3s3.next(), 3, '.next() steps correctly')
+call vimtap#Is(v3s3.value(), 2, '.value() == initial_value')
+call vimtap#Is(v3s3.next(), 2, '.next() steps correctly')
 call vimtap#Is(v3s3.next(), 8, '.next() steps correctly')
 call vimtap#Is(v3s3.next(), 34, '.next() steps correctly')
 call vimtap#Is(v3s3.next(), 144, '.next() steps correctly')
