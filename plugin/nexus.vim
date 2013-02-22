@@ -128,15 +128,19 @@ function! Series(...)
   endfunc
 
   func incrementor.next() dict
-    call add(self.values, call(self.generator.inc, [], self.generator))
+    if self.index > -1
+      call add(self.values, call(self.generator.inc, [], self.generator))
+    else
+      call add(self.values, self.start)
+    endif
     let self.index += 1
-    return self.use_printf
-          \ ? printf(self.format, self.values[self.index])
-          \ : eval(substitute(self.format, '\Cx:nexus', 'self.values[self.index]', 'g'))
+    return self.value()
   endfunc
 
   func incrementor.value() dict
-    return self.values[self.index]
+    return self.use_printf
+          \ ? printf(self.format, self.values[self.index])
+          \ : eval(substitute(self.format, '\C\<x:nexus\>', 'self.values[self.index]', 'g'))
   endfunc
 
   call call(incrementor.init, a:000, incrementor)
