@@ -67,9 +67,10 @@ function! Series(...)
   func incrementor.init(...) dict
     if self.initialised == 0
       let self.initialised = 1
-      let self.gen_func = function(get(filter(copy(a:000), 'v:val =~ ''^\h[a-zA-Z0-9#._]*\(()\?\)\?$'''), 0, 'nexus#sequence'))
+      let generator_pattern = '^\(\h[a-zA-Z0-9#._]*\)\%(()\?\)\?$'
+      let self.gen_func = function(get(map(filter(copy(a:000), 'v:val =~ ''' . generator_pattern . ''''), 'substitute(v:val, generator_pattern, "\\1", "")'), 0, 'nexus#sequence'))
       let self.args = filter(copy(a:000), 'v:val =~ ''^[-+]\?\d\+$''')[0:1]
-      let self.format = get(filter(copy(a:000), 'v:val =~ '':\|%'''), 0, 'x:nexus')
+      let self.format = get(filter(copy(a:000), 'v:val =~ ":\\|%"'), 0, 'x:nexus')
       let self.use_printf = self.format !~# 'x:nexus'
     endif
     call self.reset()
@@ -97,7 +98,7 @@ function! Series(...)
     let value = (index <= 0 ? self.values[0] : self.values[index])
     return self.use_printf
           \ ? printf(self.format, value)
-          \ : eval(substitute(self.format, '\C\<x:nexus\>', 'value', 'g'))
+          \ : eval(substitute(self.format, '\C\<x:nexus\>', value, 'g'))
   endfunc
 
   call call(incrementor.init, a:000, incrementor)
