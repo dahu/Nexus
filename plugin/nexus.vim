@@ -42,40 +42,6 @@ function! Generator(...)
   return g
 endfunction
 
-" Default generator - simple linear numeric sequence
-" Generators are expected to provide the following interface:
-" init([start=0], [step=1]) - to (re)initiialise the generator.
-" next() - to generate the next term in the sequence
-function! Sequence(...)
-  let s = Generator(a:000)
-
-  func s.init() dict
-    let self.value = 0
-  endfunc
-
-  func s.next() dict
-    let self.value += (self.step > 0 ? 1 : -1)
-  endfunc
-
-  return s
-endfunction
-
-" Sample generator - fibonacci sequence
-function! Fibonacci(...)
-  let f = Generator(a:000)
-
-  func f.init() dict
-    let self.value = 0
-    let self.b = 1
-  endfunc
-
-  func f.next() dict
-    let [self.value, self.b] = [self.b, self.value + self.b]
-  endfunc
-
-  return f
-endfunction
-
 " Series([step=1])
 " Series(start, step)
 " Series(generator, [step=1])
@@ -89,11 +55,11 @@ endfunction
 " Example:
 "
 " Given a Fibonacci generator:
-"   Series('Fibonacci')
+"   Series('nexus#fibonacci')
 " creates a standard Fibonacci generator starting at the first term, 0,
 " stepping at each .next() method by one term along in the series.
 "
-" By default, Series uses the Sequence() generator.
+" By default, Series uses the nexus#sequence() generator.
 function! Series(...)
   let incrementor = {}
   let incrementor.initialised = 0
@@ -101,7 +67,7 @@ function! Series(...)
   func incrementor.init(...) dict
     if self.initialised == 0
       let self.initialised = 1
-      let self.gen_func = function(get(filter(copy(a:000), 'v:val =~ ''^\h[a-zA-Z0-9#._]*\(()\?\)\?$'''), 0, 'Sequence'))
+      let self.gen_func = function(get(filter(copy(a:000), 'v:val =~ ''^\h[a-zA-Z0-9#._]*\(()\?\)\?$'''), 0, 'nexus#sequence'))
       let self.args = filter(copy(a:000), 'v:val =~ ''^[-+]\?\d\+$''')[0:1]
       let self.format = get(filter(copy(a:000), 'v:val =~ '':\|%'''), 0, 'x:nexus')
       let self.use_printf = self.format !~# 'x:nexus'
