@@ -24,13 +24,10 @@ function! Generator(...)
 
   func g.__init(...) dict
     let [self.start, self.step] = s:generator_arguments(a:000)
-    let self.value = self.start   " this should be overridden in self.init() if necessary
-    let self.index = -1
-    call self.init()
+    call self.init()  " NOTE: This must set self.value correctly
     for x in range(abs(self.start))
       call self.next()
     endfor
-    let self.index = 0
     return self
   endfunc
 
@@ -38,7 +35,6 @@ function! Generator(...)
     let ret = self.value
     for x in range(abs(self.step))
       call self.next()
-      let self.index += 1
     endfor
     return ret
   endfunc
@@ -54,15 +50,11 @@ function! Sequence(...)
   let s = Generator(a:000)
 
   func s.init() dict
-    let self.value = self.start
+    let self.value = 0
   endfunc
 
   func s.next() dict
-    if self.index == -1
-      let self.value = self.start
-    else
-      let self.value += (self.step > 0 ? 1 : -1)
-    endif
+    let self.value += (self.step > 0 ? 1 : -1)
   endfunc
 
   return s
@@ -128,19 +120,18 @@ function! Series(...)
   endfunc
 
   func incrementor.next() dict
-    if self.index > -1
-      call add(self.values, call(self.generator.inc, [], self.generator))
-    else
-      call add(self.values, self.start)
-    endif
+    call add(self.values, call(self.generator.inc, [], self.generator))
     let self.index += 1
-    return self.value()
+    return self.value(self.index - 1)
   endfunc
 
-  func incrementor.value() dict
+  func incrementor.value(...) dict
+    "TODO - if a:1 > self.index then call self.next until we generate enough
+    let index = a:0 ? a:1 : (self.index - 1)
+    let value = (index <= 0 ? self.values[0] : self.values[index])
     return self.use_printf
-          \ ? printf(self.format, self.values[self.index])
-          \ : eval(substitute(self.format, '\C\<x:nexus\>', 'self.values[self.index]', 'g'))
+          \ ? printf(self.format, value)
+          \ : eval(substitute(self.format, '\C\<x:nexus\>', 'value', 'g'))
   endfunc
 
   call call(incrementor.init, a:000, incrementor)

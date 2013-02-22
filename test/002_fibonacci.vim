@@ -1,5 +1,5 @@
 call vimtest#StartTap()
-call vimtap#Plan(12 * 7) " <== XXX  Keep plan number updated.  XXX
+call vimtap#Plan(96) " <== XXX  Keep plan number updated.  XXX
 
 let iv0s1 = Series('Fibonacci')               "  implicit start 0, implicit step 1
 let iv0is1 = Series('Fibonacci', 1)           "  implicit start 0, step 1
