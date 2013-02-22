@@ -109,12 +109,10 @@ function! Series(...)
   func incrementor.init(...) dict
     if self.initialised == 0
       let self.initialised = 1
-      let self.args = a:000
-      let self.gen_func = 'Sequence'
-      if (a:0 == 3) || (a:0 && (type(a:1) == type('')))
-        let self.args = a:000[1:-1]
-        let self.gen_func = function(a:1)
-      endif
+      let self.gen_func = function(get(filter(copy(a:000), 'v:val =~ ''^\h[a-zA-Z0-9#._]*\(()\?\)\?$'''), 0, 'Sequence'))
+      let self.args = filter(copy(a:000), 'v:val =~ ''^\d\+$''')[0:1]
+      let self.format = get(filter(copy(a:000), 'v:val =~ '':\|%'''), 0, 'x:nexus')
+      let self.use_printf = self.format !~# 'x:nexus'
     endif
     call self.reset()
   endfunc
@@ -132,7 +130,9 @@ function! Series(...)
   func incrementor.next() dict
     call add(self.values, call(self.generator.inc, [], self.generator))
     let self.index += 1
-    return self.values[self.index]
+    return self.use_printf
+          \ ? printf(self.format, self.values[self.index])
+          \ : eval(substitute(self.format, '\Cx:nexus', 'self.values[self.index]', 'g'))
   endfunc
 
   func incrementor.value() dict
