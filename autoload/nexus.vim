@@ -50,7 +50,6 @@ function! nexus#alpha(...)
         call add(chars, 'a')
         break
       endif
-      echo chars
       let carry = chars[-i] == 'z' ? 1 : 0
       let chars[-i] = get(self.chars, index(self.chars, chars[-i]) + 1, 'a')
     endwhile

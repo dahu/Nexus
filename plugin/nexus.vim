@@ -98,7 +98,7 @@ function! Series(...)
     let value = (index <= 0 ? self.values[0] : self.values[index])
     return self.use_printf
           \ ? printf(self.format, value)
-          \ : eval(substitute(self.format, '\C\<x:nexus\>', value, 'g'))
+          \ : substitute(self.format, '\Cx:nexus', value, 'g')
   endfunc
 
   call call(incrementor.init, a:000, incrementor)
