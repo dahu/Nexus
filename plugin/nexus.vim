@@ -143,6 +143,22 @@ function! Series(...)
   return incrementor
 endfunction
 
+function! Nexus(...)
+  if !exists('s:nexus')
+    Nexus
+  endif
+  return s:nexus.next()
+endfunction
+
+command! -nargs=* -bang Nexus
+      \ if <bang>1 |
+      \   let s:nexus = Series(<f-args>) |
+      \ else |
+      \   call s:nexus.reset() |
+      \ endif
+
+command! NexusReset call s:nexus.reset()
+
 
 let s0 = Series(-1, 1)
 let s1 = Series()
