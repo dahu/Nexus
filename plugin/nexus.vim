@@ -73,8 +73,8 @@ function! Fibonacci(...)
   let f = Generator(a:000)
 
   func f.init() dict
-    let self.value = 1
-    let self.b = 0
+    let self.value = 0
+    let self.b = 1
   endfunc
 
   func f.next() dict
@@ -110,7 +110,7 @@ function! Series(...)
     if self.initialised == 0
       let self.initialised = 1
       let self.gen_func = function(get(filter(copy(a:000), 'v:val =~ ''^\h[a-zA-Z0-9#._]*\(()\?\)\?$'''), 0, 'Sequence'))
-      let self.args = filter(copy(a:000), 'v:val =~ ''^\d\+$''')[0:1]
+      let self.args = filter(copy(a:000), 'v:val =~ ''^[-+]\?\d\+$''')[0:1]
       let self.format = get(filter(copy(a:000), 'v:val =~ '':\|%'''), 0, 'x:nexus')
       let self.use_printf = self.format !~# 'x:nexus'
     endif
@@ -128,15 +128,19 @@ function! Series(...)
   endfunc
 
   func incrementor.next() dict
-    call add(self.values, call(self.generator.inc, [], self.generator))
+    if self.index > -1
+      call add(self.values, call(self.generator.inc, [], self.generator))
+    else
+      call add(self.values, self.start)
+    endif
     let self.index += 1
-    return self.use_printf
-          \ ? printf(self.format, self.values[self.index])
-          \ : eval(substitute(self.format, '\Cx:nexus', 'self.values[self.index]', 'g'))
+    return self.value()
   endfunc
 
   func incrementor.value() dict
-    return self.values[self.index]
+    return self.use_printf
+          \ ? printf(self.format, self.values[self.index])
+          \ : eval(substitute(self.format, '\C\<x:nexus\>', 'self.values[self.index]', 'g'))
   endfunc
 
   call call(incrementor.init, a:000, incrementor)
