@@ -123,5 +123,4 @@ command! NexusReset call s:nexus.reset()
 
 let s0 = Series(-1, 1)
 let s1 = Series()
-let inc = Series()            " alternate 1-based incrementor
-let fib = Series('Fibonacci') " Fibonacci number generator
+let fib = Series('nexus#fibonacci') " Fibonacci number generator
