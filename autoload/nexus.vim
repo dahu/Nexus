@@ -1,3 +1,41 @@
+" Vim library for short description
+" Maintainer:	Barry Arthur <barry.arthur@gmail.com>
+" 		Israel Chauca F. <israelchauca@gmail.com>
+" Version:	0.1
+" Description:	Long description.
+" Last Change:	2013-02-22
+" License:	Vim License (see :help license)
+" Location:	autoload/nexus.vim
+" Website:	https://github.com/dahu/Nexus
+"
+" See nexus.txt for help.  This can be accessed by doing:
+"
+" :helptags ~/.vim/doc
+" :help Nexus
+
+let g:nexus_version = '0.1'
+
+" Vimscript Setup: {{{1
+" Allow use of line continuation.
+let s:save_cpo = &cpo
+set cpo&vim
+
+" load guard
+" uncomment after plugin development
+" Remove the conditions you do not need, they are there just as an example.
+"if exists("g:loaded_lib_nexus")
+"      \ || v:version < 700
+"      \ || v:version == 703 && !has('patch338')
+"      \ || &compatible
+"  let &cpo = s:save_cpo
+"  finish
+"endif
+"let g:loaded_lib_nexus = 1
+
+" Private Functions: {{{1
+
+" Library Interface: {{{1
+
 " Default generator - simple linear numeric sequence
 " Generators are expected to provide the following interface:
 " init([start=0], [step=1]) - to (re)initiialise the generator.
@@ -63,3 +101,33 @@ function! nexus#alpha(...)
 
   return a
 endfunction
+
+function! nexus#roman(...)
+  let r = Generator(a:000)
+  let r.arabic = [1000, 900, 500, 400, 100, 90, 50,  40,  10,  9,  5,   4,  1 ]
+  let r.roman  = ["M", "CM", "D","CD", "C","XC","L","XL","X","IX","V","IV","I"]
+
+  func r.init() dict
+    let self.value = 'I'
+    let self.n = 1
+  endfunc
+
+  func r.next() dict
+    let self.n += 1
+    let self.value = ''
+    let n = self.n
+    for i in range(0, 12)
+        while n >= self.arabic[i]
+            let self.value .= self.roman[i]
+            let n -= self.arabic[i]
+        endwhile
+    endfor
+  endfunc
+
+  return r
+endfunction
+" Teardown:{{{1
+"reset &cpo back to users setting
+let &cpo = s:save_cpo
+
+" vim: set sw=2 sts=2 et fdm=marker:
