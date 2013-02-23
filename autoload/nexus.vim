@@ -1,12 +1,16 @@
 " Default generator - simple linear numeric sequence
 " Generators are expected to provide the following interface:
 " init([start=0], [step=1]) - to (re)initiialise the generator.
+"   If the generator needs to be stepped to the correct starting value from an
+"   initial fixed point, then add:
+"     let self.needs_step_start = 1
+"   to the init() method
 " next() - to generate the next term in the sequence
 function! nexus#sequence(...)
   let s = Generator(a:000)
 
   func s.init() dict
-    let self.value = 0
+    let self.value = self.start
   endfunc
 
   func s.next() dict
@@ -21,6 +25,7 @@ function! nexus#fibonacci(...)
   let f = Generator(a:000)
 
   func f.init() dict
+    let self.needs_step_start = 1
     let self.value = 0
     let self.b = 1
   endfunc

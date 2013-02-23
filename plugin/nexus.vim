@@ -24,10 +24,13 @@ function! Generator(...)
 
   func g.__init(...) dict
     let [self.start, self.step] = s:generator_arguments(a:000)
+    let self.needs_step_start = 0
     call self.init()  " NOTE: This must set self.value correctly
-    for x in range(abs(self.start))
-      call self.next()
-    endfor
+    if self.needs_step_start
+      for x in range(abs(self.start))
+        call self.next()
+      endfor
+    endif
     return self
   endfunc
 
@@ -97,7 +100,7 @@ function! Series(...)
     let index = a:0 ? a:1 : (self.index - 1)
     let value = (index <= 0 ? self.values[0] : self.values[index])
     return self.use_printf
-          \ ? eval(printf(self.format, value))
+          \ ? eval(printf(self.format, "'" . value . "'"))
           \ : eval(substitute(self.format, '\C\<x:nexus\>', 'value', 'g'))
   endfunc
 
@@ -122,6 +125,6 @@ command! -nargs=* -bang Nexus
 command! NexusReset call s:nexus.reset()
 
 
-let s0 = Series(-1, 1)
-let s1 = Series()
+let s0 = Series()
+let s1 = Series(1, 1)
 let fib = Series('nexus#fibonacci') " Fibonacci number generator

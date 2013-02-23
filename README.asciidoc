@@ -3,8 +3,78 @@ Nexus
 
 _Generators for Vim_
 
-Default Generator
-~~~~~~~~~~~~~~~~~
+:Nexus
+~~~~~~
+
+The ++:Nexus++ command generates a callback function called Nexus()
+which can be used in code or substitutions to yield the next value in
+the associated series.
+
+Examples
+^^^^^^^^
+
+.No arguments
+
+  :Nexus
+
+Will create a simple numeric sequence starting at 0 and incrementing
+by 1 with each call to Nexus(). To replace all ++'foo'++ in your file
+with this series you could then use:
+
+  :%s/foo/\=Nexus()/g
+
+.Start and Step arguments
+
+Numeric arguments will be parsed as follows:
+
+  :Nexus [step]
+  :Nexus start step
+
+So:
+
+  :Nexus 2   " yields a counter starting at 0 with a step of 2: 0, 2, 4
+  :Nexus 3 2 " yields a counter starting at 3 with a step of 2: 3, 5, 7,
+
+.Generator
+
+A function name will change the generator used in the Nexus() callback
+accordingly:
+
+  :Nexus nexus#fibonacci
+
+or, if you've written your own generator for, say, prime numbers:
+
+  :Nexus Primes
+
+.Format Function
+
+An argument that contains a : or % will be taken as the format string.
+The default format string is: '%d' which simply expands to the
+(numeric!) value of the next item in the series at each call. If your
+generator yields non-numeric values (such as the built-in nexus#alpha)
+then you will need to create your own format string accordingly:
+
+  :Nexus %s\  nexus#alpha
+
+NOTE: There are two spaces after the ++\++ -- the first is captured as
+part of the format string and the second separates the two arguments
+(format string and generator).
+
+These arguments may appear in any order with the caveat that the
+++step++ or ++start++ and ++step++ will always be considered in that
+order when numbers appear anywhere as standalone arguments. So,
+although the following layout is not recommended for reader-clarity,
+it is nonetheless possible:
+
+  :Nexus 1 nexus#alpha %s\  2
+
+and will create an alpha series starting at the first term and step by
+two with each call to Nexus(). This will generate: b, d, f, h, j, ...
+
+NOTE: Nexus generators are zero indexed. The zeroth alpha term is 'a'.
+
+Default Objects
+~~~~~~~~~~~~~~~
 
 By default, Nexus comes with a linear numeric generator and two global
 objects which use it:
@@ -12,11 +82,11 @@ objects which use it:
 * +s0+
 * +s1+
 
-The +s1+ object has a method called +next()+ which returns the next number in the
-series. As the name implies, the first such number is 1. There is a
-corresponding +s0+ object whose first call to +next()+ yields, of course, the
-number 0. Users are free to create their own objects from the default
-numeric generator too:
+These objects have a method called +next()+ which returns the next
+number in the series. As the name implies, the first such number is 1.
+There is a corresponding +s0+ object whose first call to +next()+
+yields, of course, the number 0. Users are free to create their own
+objects from the default numeric generator too:
 
   :let even_seq = Series(2)
 
@@ -28,10 +98,11 @@ will print 2 on the first call, then 4, then 6, 8, 10, etc, on subsequent calls.
 
 The Series constructor has the following signatures:
 
-* +Series()+ -> starting at 0 with an increment of 1 -> 1, 2, 3, 4, ...
-* +Series(7)+ -> starting at 0 with an increment of 7 -> 7, 14, 21, 28, ...
-* +Series(7, 2)+ -> starting at 7 with an increment of 2 -> 9, 11, 13, 15, ...
-* +Series(2, 7)+ -> starting at 2 with an increment of 7 -> 9, 16, 23, 30, ...
+* +Series()+ -> 0, 1, 2, ...
+* +Series(7)+ -> 7, 14, 21, ...
+* +Series(7, 2)+ -> 7, 9, 11, ...
+* +Series(2, 7)+ -> 2, 9, 16, ...
+* +Series('nexus#alpha')+ -> 'a', 'b', 'c', ...
 
 Nexus's Series Objects provide the following methods:
 
@@ -41,8 +112,8 @@ Nexus's Series Objects provide the following methods:
 
 I use +s1+ a lot in my daily vimming. It could be useful to you too.
 
-Other generators
-~~~~~~~~~~~~~~~~
+Other Generators
+^^^^^^^^^^^^^^^^
 
 Other generators can be written for Nexus and passed to +Series()+ as
 a string in the first argument:
@@ -58,3 +129,7 @@ generators can be used with Nexus. Consult the code in
 find a use for the Fibonacci sequence in your Vim life, I would love
 to hear about it.  :-)
 
+Nexus also provides the following generators:
+
+* ++nexus#alpha++ -- a, b, c, ..., z, aa, ab, ac, ...
+* ++nexus#roman++ -- I, II, III, IV, ...
