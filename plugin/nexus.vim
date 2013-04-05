@@ -139,8 +139,8 @@ function! Series(...)
     let index = a:0 ? a:1 : (self.index - 1)
     let value = (index <= 0 ? self.values[0] : self.values[index])
     return self.use_printf
-          \ ? eval(printf(self.format, "'" . value . "'"))
-          \ : eval(substitute(self.format, '\C\<x:nexus\>', 'value', 'g'))
+          \ ? printf(self.format, eval('"' . escape(value, '"') . '"'))
+          \ : eval('"' . escape(substitute(self.format, '\C\<x:nexus\>', value, 'g'), '"') . '"')
   endfunc
 
   call call(incrementor.init, a:000, incrementor)
