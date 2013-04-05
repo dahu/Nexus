@@ -155,7 +155,7 @@ function! Nexus(...)
 endfunction
 
 " Commands: {{{1
-command! -nargs=* -bang Nexus
+command! -bar -nargs=* -bang Nexus
       \ if <bang>1 |
       \   let s:nexus = Series(<f-args>) |
       \ else |
