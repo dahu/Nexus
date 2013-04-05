@@ -13,7 +13,7 @@ the associated series.
 Examples
 ^^^^^^^^
 
-.No arguments
+.No arguments:
 
   :Nexus
 
@@ -22,6 +22,15 @@ by 1 with each call to Nexus(). To replace all ++'foo'++ in your file
 with this series you could then use:
 
   :%s/foo/\=Nexus()/g
+
+.Nexus initialisation and substitute as a single command sequence:
+
+  :Nexus 10 1 %d, | %s/^\(\d*,\)\?/\=Nexus()/
+
+NOTE: The above command renumbers lines in the file starting from a
+count of 10, incrementing by 1 each line, replacing existing numbers
+if present. It uses a format of ``%d,'' to separate the new number
+from the rest of the line text with a comma.
 
 .Start and Step arguments
 
