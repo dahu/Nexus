@@ -1,0 +1,168 @@
+*nexus.txt*	Generators for Vim
+
+
+			VIM REFERENCE MANUAL	by Barry Arthur
+
+
+Help on using nexus                                                    *nexus*
+
+1. Introduction				|nexus-intro|
+2. Examples				|nexus-examples|
+
+==============================================================================
+ 1. INTRODUCTION                                                  *nexus-intro*
+
+Nexus provides generators for Vim - perhaps more easily thought of as
+numerical series. Two examples of simple generators are:
+  * the number sequence from one to ten, and
+  * an alphabetic sequence from 'a' to 'z'
+and Nexus provides several other built-in generators, like:
+  * Roman Numerals, and
+  * Fibonacci Numbers
+and Nexus also allows you to create your own generators. The Fibonacci
+Number generators is there as an example on how you would write your own
+generator more than being useful in its own right.
+
+==============================================================================
+ 2. EXAMPLES                                              *nexus-examples*
+
+No arguments:~
+>
+  :Nexus
+<
+Will create a simple numeric sequence starting at 0 and incrementing
+by 1 with each call to Nexus(). To replace all "foo" in your file
+with this series you could then use:
+>
+  :%s/foo/\=Nexus()/g
+<
+Nexus initialisation and substitute as a single command sequence:~
+>
+  :Nexus 10 1 %d, | %s/^\(\d*,\)\?/\=Nexus()/
+<
+NOTE: The above command renumbers lines in the file starting from a
+count of 10, incrementing by 1 each line, replacing existing numbers
+if present. It uses a format of "%d," to separate the new number
+from the rest of the line text with a comma.
+
+                                              *nexus-start-step-arguments*
+Start and Step arguments:~
+
+Numeric arguments will be parsed as follows:
+<
+  :Nexus [step]
+  :Nexus start step
+>
+So:
+>
+  :Nexus 2   " yields a counter starting at 0 with a step of 2: 0, 2, 4
+  :Nexus 3 2 " yields a counter starting at 3 with a step of 2: 3, 5, 7,
+<
+                                                         *nexus-generator*
+Generator~
+
+A function name will change the generator used in the Nexus() callback
+accordingly:
+>
+  :Nexus nexus#fibonacci
+<
+or, if you've written your own generator for, say, prime numbers:
+>
+  :Nexus Primes
+<
+                                                   *nexus-format-function*
+Format Function~
+
+An argument that contains a : or % will be taken as the format string.
+The default format string is: '%d' which simply expands to the
+(numeric!) value of the next item in the series at each call. If your
+generator yields non-numeric values (such as the built-in nexus#alpha)
+then you will need to create your own format string accordingly:
+>
+  :Nexus %s\  nexus#alpha
+<
+NOTE: There are two spaces after the "\" -- the first is captured as
+part of the format string and the second separates the two arguments
+(format string and generator).
+
+These arguments may appear in any order with the caveat that the
+"step" or "start -and- step" will always be considered in that
+order when numbers appear anywhere as standalone arguments. So,
+although the following layout is not recommended for reader-clarity,
+it is nonetheless possible:
+>
+  :Nexus 1 nexus#alpha %s\  2
+<
+and will create an alpha series starting at the first term and step by
+two with each call to Nexus(). This will generate: b, d, f, h, j, ...
+
+NOTE: Nexus generators are zero indexed. The zeroth alpha term is 'a'.
+
+                                          *nexus-default-sequence-objects*
+Default Sequence Objects~
+
+By default, Nexus comes with a linear numeric generator and two global
+objects which use it:
+
+* s0
+* s1
+
+These objects have a method called "next()" which returns the next
+number in the series. As the name implies, the first such number is 1.
+There is a corresponding "s0" object whose first call to "next()"
+yields, of course, the number 0. Users are free to create their own
+objects from the default numeric generator too:
+>
+  :let even_seq = Series(2)
+<
+The command:
+>
+  :echo even_seq.next()
+<
+will print 0 on the first call, then 2, then 4, 6, 8, 10, etc, on subsequent calls.
+
+                                                *nexus-series-constructor*
+The Nexus command uses the Series function behind the scenes. You have direct
+access to this object generator for the creation of your own series objects.
+
+The Series constructor has the following signatures:~
+Given these arguments   -> produces objects that yield these values on .next()
+
+* Series()              -> 0, 1, 2, ...
+* Series(7)             -> 0, 7, 14, ...
+* Series(7, 2)          -> 7, 9, 11, ...
+* Series(2, 7)          -> 2, 9, 16, ...
+* Series('nexus#alpha') -> 'a', 'b', 'c', ...
+* Series('(%d) ')       -> (0) , (1) , (2) , ...
+
+                                                    *nexus-series-methods*
+Nexus's Series Objects provide the following methods:~
+
+* reset() to set the object back to its original values when created
+* next()  to return the next number in the series and increment
+* value() to return the current value without incrementing internal state
+
+                                                  *nexus-other-generators*
+Other Generators~
+
+Other generators can be written for Nexus and passed to Series() as
+a string in the first argument:
+>
+  :let fib = Series('nexus#fibonacci')
+<
+Will create a Series object called "fib" that generates the Fibonacci
+sequence on each subsequent ".next()" call. This generator and object
+exist by default in the Nexus plugin. They are not expected to be
+useful in themselves but rather serve to demonstrate how user-created
+generators can be used with Nexus. Consult the code in
+"plugin/nexus.vim" to learn how to craft your generator.
+
+Nexus provides the following builtin generators:
+
+* nexus#series    -- 0, 1, 2, 3, 4, 5, ...           [DEFAULT]
+* nexus#alpha     -- a, b, c, ..., z, aa, ab, ac, ...
+* nexus#roman     -- I, II, III, IV, V, ...
+* nexus#fibonacci -- 0, 1, 1, 2, 3, 5, ...
+
+Template From: https://github.com/dahu/Area-41/
+ vim:tw=78:ts=8:ft=help:norl:
