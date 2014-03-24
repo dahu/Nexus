@@ -82,20 +82,12 @@ two with each call to Nexus(). This will generate: b, d, f, h, j, ...
 
 NOTE: Nexus generators are zero indexed. The zeroth alpha term is 'a'.
 
-Default Objects
-~~~~~~~~~~~~~~~
+Series() Generator for Creating Incrementor Objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By default, Nexus comes with a linear numeric generator and two global
-objects which use it:
-
-* +s0+
-* +s1+
-
-These objects have a method called +next()+ which returns the next
-number in the series. As the name implies, the first such number is 1.
-There is a corresponding +s0+ object whose first call to +next()+
-yields, of course, the number 0. Users are free to create their own
-objects from the default numeric generator too:
+Nexus comes with a incrementor-object generator called Series(), the objects of
+which have a method called +next()+ which returns the next number in the
+series. Create objects like this:
 
   :let even_seq = Series(2)
 
@@ -103,12 +95,12 @@ The command:
 
   :echo even_seq.next()
 
-will print 2 on the first call, then 4, then 6, 8, 10, etc, on subsequent calls.
+will print 0 on the first call, then 2, then 4, 6, 8, etc, on subsequent calls.
 
 The Series constructor has the following signatures:
 
 * +Series()+ -> 0, 1, 2, ...
-* +Series(7)+ -> 7, 14, 21, ...
+* +Series(7)+ -> 0, 7, 14, 21, ...
 * +Series(7, 2)+ -> 7, 9, 11, ...
 * +Series(2, 7)+ -> 2, 9, 16, ...
 * +Series('nexus#alpha')+ -> 'a', 'b', 'c', ...
@@ -119,8 +111,6 @@ Nexus's Series Objects provide the following methods:
 * +reset()+ to set the object back to its original values when created
 * +next()+ to increment and return the next number in the series
 * +value()+ to return the current value without incrementing internal state
-
-I use +s1+ a lot in my daily vimming. It could be useful to you too.
 
 Other Generators
 ^^^^^^^^^^^^^^^^
