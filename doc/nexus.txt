@@ -10,7 +10,18 @@ Help on using nexus                                                    *nexus*
 2. Examples				|nexus-examples|
 
 ==============================================================================
- 1. INTRODUCTION                                                  *nexus-intro*
+ 1. INTRODUCTION                                    *:List*  *nexus-intro*
+
+The simplest way to use Nexus is through the |:List| command.
+Visually select a range of lines and type |:List| to have
+them numbered from 1 with leading 0 padding where appropriate.
+
+TIP: If you want to change the default behaviour, |:List| accepts
+     the same arguments as |:Nexus| below.
+
+|:List| adds numbers to the start of every line in the provided
+range. If you need to number elements within a line then you need to
+use |:Nexus| instead.
 
 Nexus provides generators for Vim - perhaps more easily thought of as
 numerical series. Two examples of simple generators are:
@@ -24,7 +35,7 @@ Number generators is there as an example on how you would write your own
 generator more than being useful in its own right.
 
 ==============================================================================
- 2. EXAMPLES                                              *nexus-examples*
+ 2. EXAMPLES                                    *:Nexus*  *nexus-examples*
 
 No arguments:~
 >

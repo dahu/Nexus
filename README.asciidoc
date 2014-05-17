@@ -7,8 +7,22 @@ TIP: If you like Nexus and want to share the W00t!, I'm grateful for
 https://www.gittip.com/bairuidahu/[tips] or
 http://of-vim-and-vigor.blogspot.com/[beverages].
 
+:List
+~~~~~
+
+The simplest way to use Nexus is through the ++:List++ command.
+Visually select a range of lines and type ++:List++ to have
+them numbered from 1 with leading 0 padding where appropriate.
+
+TIP: If you want to change the default behaviour, ++:List++ accepts
+the same arguments as ++:Nexus++ below.
+
 :Nexus
 ~~~~~~
+
+++:List++ adds numbers to the start of every line in the provided
+range. If you need to number elements within a line then you need to
+use ++:Nexus++ instead.
 
 The ++:Nexus++ command generates a callback function called Nexus()
 which can be used in code or substitutions to yield the next value in
