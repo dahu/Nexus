@@ -131,12 +131,15 @@ function! Series(...)
   func incrementor.next() dict
     call add(self.values, call(self.generator.inc, [], self.generator))
     let self.index += 1
-    return self.value(self.index - 1)
+    return self.value(self.index)
   endfunc
 
   func incrementor.value(...) dict
     "TODO - if a:1 > self.index then call self.next until we generate enough
-    let index = a:0 ? a:1 : (self.index - 1)
+    let index = a:0 ? (a:1 - 1) : (self.index - 1)
+    while index > self.index
+      call self.next()
+    endwhile
     let value = (index <= 0 ? self.values[0] : self.values[index])
     return self.use_printf
           \ ? printf(self.format, eval('"' . escape(value, '"') . '"'))
