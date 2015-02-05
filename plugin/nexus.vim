@@ -167,17 +167,22 @@ command! -bar -nargs=* -bang Nexus
 
 command! NexusReset call s:nexus.reset()
 
-function! List(...) range
+function! List(...) range abort
   let magnitude = len((a:lastline - a:firstline) + 1)
-  let default_pattern = '%0' . magnitude . 'd '
+  let default_alpha_pattern  = 'x:nexus. '
+  let default_number_pattern = '%' . magnitude . 'd. '
   if a:0 && !empty(a:1)
     let args = copy(a:000)
     if empty(filter(copy(args), 'v:val =~ "%"'))
-      call add(args, default_pattern)
+      if ! empty(filter(copy(args), 'v:val =~ "alpha"'))
+        call add(args, default_alpha_pattern)
+      else
+        call add(args, default_number_pattern)
+      endif
     endif
     let series = call('Series', args)
   else
-    let series = Series(1, 1, default_pattern)
+    let series = Series(1, 1, default_number_pattern)
   endif
   exe a:firstline . ',' . a:lastline . 's/^/\=series.next()/'
 endfunction

@@ -80,7 +80,9 @@ function! nexus#alpha(...)
   let a.chars = map(range(97, 122), 'nr2char(v:val)')
 
   func a.init() dict
-    let self.value = 'a'
+    let self.needs_step_start = 1
+    let adj = self.start == 0 ? 0 : -1
+    let self.value = nr2char(char2nr('a') + adj)
   endfunc
 
   func a.next() dict
