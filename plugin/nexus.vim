@@ -1,9 +1,6 @@
-" Vim global plugin for short description
+" Vim global plugin providing generic generators
 " Maintainer:	Barry Arthur <barry.arthur@gmail.com>
 " 		Israel Chauca F. <israelchauca@gmail.com>
-" Version:	0.1
-" Description:	Long description.
-" Last Change:	2013-02-22
 " License:	Vim License (see :help license)
 " Location:	plugin/nexus.vim
 " Website:	https://github.com/dahu/Nexus
@@ -13,25 +10,21 @@
 " :helptags ~/.vim/doc
 " :help Nexus
 
-let g:nexus_version = '0.1'
 
 " Vimscript Setup: {{{1
 " Allow use of line continuation.
 let s:save_cpo = &cpo
 set cpo&vim
 
-" load guard
-" uncomment after plugin development.
-" XXX The conditions are only as examples of how to use them. Change them as
-" needed. XXX
-"if exists("g:loaded_nexus")
-"      \ || v:version < 700
-"      \ || v:version == 703 && !has('patch338')
-"      \ || &compatible
-"  let &cpo = s:save_cpo
-"  finish
-"endif
-"let g:loaded_nexus = 1
+" if exists("g:loaded_nexus")
+"       \ || v:version < 700
+"       \ || v:version == 703 && !has('patch338')
+"       \ || &compatible
+"   let &cpo = s:save_cpo
+"   finish
+" endif
+let g:loaded_nexus = 1
+let g:nexus_version = '0.2'
 
 " Private Functions: {{{1
 
@@ -135,7 +128,6 @@ function! Series(...)
   endfunc
 
   func incrementor.value(...) dict
-    "TODO - if a:1 > self.index then call self.next until we generate enough
     let index = a:0 ? (a:1 - 1) : (self.index - 1)
     while index > self.index
       call self.next()
@@ -159,11 +151,11 @@ endfunction
 
 " Commands: {{{1
 command! -bar -nargs=* -bang Nexus
-      \ if <bang>1 |
-      \   let s:nexus = Series(<f-args>) |
-      \ else |
-      \   call s:nexus.reset() |
-      \ endif
+      \  if <bang>1
+      \|   let s:nexus = Series(<f-args>)
+      \| else
+      \|   call s:nexus.reset()
+      \| endif
 
 command! NexusReset call s:nexus.reset()
 
