@@ -10,7 +10,6 @@
 " :helptags ~/.vim/doc
 " :help Nexus
 
-
 " Vimscript Setup: {{{1
 " Allow use of line continuation.
 let s:save_cpo = &cpo
@@ -27,6 +26,19 @@ let g:loaded_nexus = 1
 let g:nexus_version = '0.2'
 
 " Private Functions: {{{1
+
+function! s:nexus_init(bang, ...)
+  if a:bang == '!'
+    call s:nexus.reset()
+  else
+    let s:nexus = call('Series', a:000)
+  endif
+endfunction
+
+function! s:nexus_generators(pattern, cmdline, cursor)
+  let pattern = (a:pattern == '' ? '.' : a:pattern)
+  return filter(sort(keys(s:generators)), "v:val =~ '" . pattern . "'")
+endfunction
 
 function! s:generator_arguments(...)
   let args = a:000
@@ -51,8 +63,11 @@ endfunction
 " Public Interface: {{{1
 
 " Generator Interface
-function! Generator(...)
+let s:generators = get(s:, 'generators', {})
+function! Generator(name, ...)
   let g = {}
+  let g.name = a:name
+  let s:generators[a:name] = g
 
   func g.__init(...) dict
     let [self.start, self.step] = s:generator_arguments(a:000)
@@ -103,7 +118,15 @@ function! Series(...)
     if self.initialised == 0
       let self.initialised = 1
       let generator_pattern = '^\(\h[a-zA-Z0-9#._]*\)\%(()\?\)\?$'
-      let self.gen_func = function(get(map(filter(copy(a:000), 'v:val =~ ''' . generator_pattern . ''''), 'substitute(v:val, generator_pattern, "\\1", "")'), 0, 'nexus#sequence'))
+      try
+        let generator = get(map(filter(copy(a:000), 'v:val =~ ''' . generator_pattern . ''''), 'substitute(v:val, generator_pattern, "\\1", "")'), 0, 'nexus#sequence')
+        let self.gen_func = function(generator)
+      catch /E700/
+        echohl Error
+        echom 'Series: Error: Invalid generator: ' . generator
+        echohl NONE
+        return
+      endtry
       let self.args = filter(copy(a:000), 'v:val =~ ''^[-+]\?\d\+$''')[0:1]
       let self.format = get(filter(copy(a:000), 'v:val =~ ":\\|%"'), 0, 'x:nexus')
       let self.use_printf = self.format !~# 'x:nexus'
@@ -149,16 +172,7 @@ function! Nexus(...)
   return s:nexus.next()
 endfunction
 
-" Commands: {{{1
-command! -bar -nargs=* -bang Nexus
-      \  if <bang>1
-      \|   let s:nexus = Series(<f-args>)
-      \| else
-      \|   call s:nexus.reset()
-      \| endif
-
-command! NexusReset call s:nexus.reset()
-
+" Convenience function to number a range
 function! List(...) range abort
   let magnitude = len((a:lastline - a:firstline) + 1)
   let default_alpha_pattern  = 'x:nexus. '
@@ -179,7 +193,15 @@ function! List(...) range abort
   exe a:firstline . ',' . a:lastline . 's/^/\=series.next()/'
 endfunction
 
-command! -nargs=* -bar -range List <line1>,<line2>call List(<f-args>)
+" Commands: {{{1
+
+command! -bar -nargs=* -bang -complete=customlist,s:nexus_generators Nexus call s:nexus_init(<q-bang>, <f-args>)
+command! -bar -nargs=* NexusGenerators echo join(s:nexus_generators(<q-args>, '', 0))
+command! -bar -nargs=0 NexusReset call s:nexus.reset()
+command! -bar -nargs=* -range List <line1>,<line2>call List(<f-args>)
+
+" Collect bundled generators for :NexusGenerators and completion within :Nexus command
+call nexus#init()
 
 " Teardown:{{{1
 "reset &cpo back to users setting

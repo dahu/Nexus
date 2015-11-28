@@ -1,9 +1,6 @@
-" Vim library for short description
+" Vim library providing generic generators
 " Maintainer:	Barry Arthur <barry.arthur@gmail.com>
 " 		Israel Chauca F. <israelchauca@gmail.com>
-" Version:	0.1
-" Description:	Long description.
-" Last Change:	2013-02-22
 " License:	Vim License (see :help license)
 " Location:	autoload/nexus.vim
 " Website:	https://github.com/dahu/Nexus
@@ -13,26 +10,22 @@
 " :helptags ~/.vim/doc
 " :help Nexus
 
-let g:nexus_version = '0.1'
-
 " Vimscript Setup: {{{1
 " Allow use of line continuation.
 let s:save_cpo = &cpo
 set cpo&vim
 
-" load guard
-" uncomment after plugin development
-" Remove the conditions you do not need, they are there just as an example.
-"if exists("g:loaded_lib_nexus")
-"      \ || v:version < 700
-"      \ || v:version == 703 && !has('patch338')
-"      \ || &compatible
-"  let &cpo = s:save_cpo
-"  finish
-"endif
-"let g:loaded_lib_nexus = 1
+" if exists("g:loaded_lib_nexus")
+"       \ || v:version < 700
+"       \ || v:version == 703 && !has('patch338')
+"       \ || &compatible
+"   let &cpo = s:save_cpo
+"   finish
+" endif
+let g:loaded_lib_nexus = 1
 
 " Private Functions: {{{1
+
 
 " Library Interface: {{{1
 
@@ -45,7 +38,7 @@ set cpo&vim
 "   to the init() method
 " next() - to generate the next term in the sequence
 function! nexus#sequence(...)
-  let s = Generator(a:000)
+  let s = Generator('nexus#sequence', a:000)
 
   func s.init() dict
     let self.value = self.start
@@ -60,10 +53,11 @@ endfunction
 
 " Sample generator - fibonacci sequence
 function! nexus#fibonacci(...)
-  let f = Generator(a:000)
+  let f = Generator('nexus#fibonacci', a:000)
 
   func f.init() dict
     let self.needs_step_start = 1
+    let self.start = self.start > 0 ? (self.start - 1) : 0
     let self.value = 0
     let self.b = 1
   endfunc
@@ -76,13 +70,13 @@ function! nexus#fibonacci(...)
 endfunction
 
 function! nexus#alpha(...)
-  let a = Generator(a:000)
+  let a = Generator('nexus#alpha', a:000)
   let a.chars = map(range(97, 122), 'nr2char(v:val)')
 
   func a.init() dict
     let self.needs_step_start = 1
-    let adj = self.start == 0 ? 0 : -1
-    let self.value = nr2char(char2nr('a') + adj)
+    let self.start = self.start > 0 ? self.start : 1
+    let self.value = nr2char(char2nr('a') - 1)
   endfunc
 
   func a.next() dict
@@ -105,29 +99,46 @@ function! nexus#alpha(...)
 endfunction
 
 function! nexus#roman(...)
-  let r = Generator(a:000)
+  let r = Generator('nexus#roman', a:000)
   let r.arabic = [1000, 900, 500, 400, 100, 90, 50,  40,  10,  9,  5,   4,  1 ]
   let r.roman  = ["M", "CM", "D","CD", "C","XC","L","XL","X","IX","V","IV","I"]
 
   func r.init() dict
+    let self.needs_step_start = 1
     let self.value = 'I'
     let self.n = 1
+    let self.start = self.start > 0 ? (self.start - 1) : 0
+  endfunc
+
+  func r.a2r(arabic)
+    let arabic = a:arabic
+    let roman = ''
+    for i in range(0, 12)
+      while arabic >= self.arabic[i]
+        let roman .= self.roman[i]
+        let arabic -= self.arabic[i]
+      endwhile
+    endfor
+    return roman
   endfunc
 
   func r.next() dict
     let self.n += 1
-    let self.value = ''
-    let n = self.n
-    for i in range(0, 12)
-        while n >= self.arabic[i]
-            let self.value .= self.roman[i]
-            let n -= self.arabic[i]
-        endwhile
-    endfor
+    let self.value = self.a2r(self.n)
   endfunc
 
   return r
 endfunction
+
+function! nexus#init()
+  redir => fs
+  silent func
+  redir END
+  for f in filter(filter(map(split(fs, "\n"), 'matchstr(v:val, "^function\\s*\\zs.\\{-}\\ze(")'), 'v:val =~ "nexus#"'), 'v:val != "nexus#init"')
+    call call(f, [])
+  endfor
+endfunction
+
 " Teardown:{{{1
 "reset &cpo back to users setting
 let &cpo = s:save_cpo
