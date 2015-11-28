@@ -14,7 +14,7 @@ Help on using nexus                                                    *nexus*
 
 The simplest way to use Nexus is through the |:List| command.
 Visually select a range of lines and type |:List| to have
-them numbered from 1 with leading 0 padding where appropriate.
+them numbered from 1 with leading space padding where appropriate.
 
 TIP: If you want to change the default behaviour, |:List| accepts
      the same arguments as |:Nexus| below.
@@ -25,13 +25,14 @@ use |:Nexus| instead.
 
 Nexus provides generators for Vim - perhaps more easily thought of as
 numerical series. Two examples of simple generators are:
-  * the number sequence from one to ten, and
+  * the number sequence from 1 to 10, and
   * an alphabetic sequence from 'a' to 'z'
 and Nexus provides several other built-in generators, like:
   * Roman Numerals, and
   * Fibonacci Numbers
-and Nexus also allows you to create your own generators. The Fibonacci
-Number generators is there as an example on how you would write your own
+
+Nexus also allows you to create your own generators. The Fibonacci
+Number generator is there as an example on how you would write your own
 generator more than being useful in its own right.
 
 ==============================================================================
@@ -105,46 +106,32 @@ it is nonetheless possible:
   :Nexus 1 nexus#alpha %s\  2
 <
 and will create an alpha series starting at the first term and step by
-two with each call to Nexus(). This will generate: b, d, f, h, j, ...
+two with each call to Nexus(). This will generate: a, c, e, g, i, ...
 
-NOTE: Nexus generators are zero indexed. The zeroth alpha term is 'a'.
+                                                          *series-objects*
 
-                                          *nexus-default-sequence-objects*
-Default Sequence Objects~
-
-By default, Nexus comes with a linear numeric generator and two global
-objects which use it:
-
-* s0
-* s1
-
-These objects have a method called "next()" which returns the next
-number in the series. As the name implies, the first such number is 1.
-There is a corresponding "s0" object whose first call to "next()"
-yields, of course, the number 0. Users are free to create their own
-objects from the default numeric generator too:
->
-  :let even_seq = Series(2)
+Users are free to create their own objects from the Series() function.
+Series objects have a method called "next()" which returns the next number in
+the series.
 <
-The command:
+  :let even_seq = Series(2) < The command:
 >
-  :echo even_seq.next()
-<
-will print 0 on the first call, then 2, then 4, 6, 8, 10, etc, on subsequent calls.
+:echo even_seq.next() < will print 0 on the first call, then 2, then 4, 6,
+8, 10, etc, on subsequent calls.
 
-                                                *nexus-series-constructor*
+                                                      *series-constructor*
 The Nexus command uses the Series function behind the scenes. You have direct
 access to this object generator for the creation of your own series objects.
 
 The Series constructor has the following signatures:~
 Given these arguments   -> produces objects that yield these values on .next()
 
-* Series()              -> 0, 1, 2, ...
-* Series(7)             -> 0, 7, 14, ...
-* Series(7, 2)          -> 7, 9, 11, ...
-* Series(2, 7)          -> 2, 9, 16, ...
-* Series('nexus#alpha') -> 'a', 'b', 'c', ...
-* Series('(%d) ')       -> (0) , (1) , (2) , ...
+* Series()               -> 0   , 1   , 2   , ...
+* Series(7)              -> 0   , 7   , 14  , ...
+* Series(7 , 2)          -> 7   , 9   , 11  , ...
+* Series(2 , 7)          -> 2   , 9   , 16  , ...
+* Series('nexus#alpha')  -> 'a' , 'b' , 'c' , ...
+* Series('(%d) ')        -> (0) , (1) , (2) , ...
 
                                                     *nexus-series-methods*
 Nexus's Series Objects provide the following methods:~
