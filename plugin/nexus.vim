@@ -173,32 +173,44 @@ function! Nexus(...)
 endfunction
 
 " Convenience function to number a range
-function! List(...) range abort
-  let magnitude = len((a:lastline - a:firstline) + 1)
-  let default_alpha_pattern  = 'x:nexus. '
-  let default_number_pattern = '%' . magnitude . 'd. '
-  if a:0 && !empty(a:1)
-    let args = copy(a:000)
-    if empty(filter(copy(args), 'v:val =~ "%"'))
-      if ! empty(filter(copy(args), 'v:val =~ "alpha"'))
-        call add(args, default_alpha_pattern)
-      else
-        call add(args, default_number_pattern)
-      endif
-    endif
-    let series = call('Series', args)
-  else
-    let series = Series(1, 1, default_number_pattern)
-  endif
-  exe a:firstline . ',' . a:lastline . 's/^/\=series.next()/'
+
+function! s:list_default()
+  let s:list = Series(1, 1, '%d. ')
 endfunction
+
+function! ListInit(...)
+  if a:0
+    let s:list = call('Series', a:000)
+  else
+    call s:list_default()
+  endif
+endfunction
+
+function! ListReset()
+  call s:list.reset()
+endfunction
+
+function! List(bang, ...) range abort
+  if a:bang == ''
+    if a:0
+      call call('ListInit', a:000)
+    else
+      call ListReset()
+    endif
+  endif
+  exe a:firstline . ',' . a:lastline . 's/^/\=s:list.next()/'
+endfunction
+
+call ListInit()
 
 " Commands: {{{1
 
 command! -bar -nargs=* -bang -complete=customlist,s:nexus_generators Nexus call s:nexus_init(<q-bang>, <f-args>)
 command! -bar -nargs=* NexusGenerators echo join(s:nexus_generators(<q-args>, '', 0))
 command! -bar -nargs=0 NexusReset call s:nexus.reset()
-command! -bar -nargs=* -range List <line1>,<line2>call List(<f-args>)
+command! -bar -nargs=* ListInit  call ListInit(<f-args>)
+command! -bar -nargs=* ListReset call ListReset()
+command! -bar -nargs=* -bang -range List <line1>,<line2>call List(<q-bang>, <f-args>)
 
 " Collect bundled generators for :NexusGenerators and completion within :Nexus command
 call nexus#init()
